@@ -57,6 +57,12 @@
       });
     }
 
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
     async function fetchSheet(gid) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
@@ -95,13 +101,17 @@
         }
 
         container.className = '';
-        container.innerHTML = data.map(item => `
+        container.innerHTML = data.map(item => {
+          const keys = Object.keys(item).filter(k => item[k]);
+          const titleKey = keys[0];
+          const rest = keys.slice(1);
+          return `
           <div class="card">
-            <h3>${item.details || item.type || 'Entry'}</h3>
-            <p><strong>Status:</strong> ${item.status || 'N/A'}</p>
-            <p><strong>Date:</strong> ${item.date || 'N/A'}</p>
+            <h3>${titleKey ? escapeHtml(item[titleKey]) : 'Entry'}</h3>
+            ${rest.map(k => `<p><strong>${escapeHtml(k)}:</strong> ${escapeHtml(item[k])}</p>`).join('')}
           </div>
-        `).join('');
+        `;
+        }).join('');
       } catch (err) {
         container.className = 'error';
         container.innerHTML = 'Failed to load data.<br><small>' + (err && err.message ? err.message : err) + '</small>';
