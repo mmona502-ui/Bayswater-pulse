@@ -1,92 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Local Pulse</title>
-<style>
-body { font-family: sans-serif; margin: 0; padding: 16px; background-color: #f4f4f9; }
-h1 { text-align: center; color: #333; }
-.nav { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-.nav button { padding: 8px 16px; border: none; background: #007bff; color: white; border-radius: 4px; cursor: pointer; }
-.nav button:hover { background: #0056b3; }
-.card { background: white; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.card h3 { margin: 0 0 8px 0; color: #222; }
-.card p { margin: 4px 0; color: #555; }
-.loading { text-align: center; color: #777; font-style: italic; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Pulse</title>
+  <style>
+    body { font-family: sans-serif; padding: 16px; background: #f4f4f9; color: #333; }
+    h1 { text-align: center; }
+    .nav { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .nav button { padding: 10px 14px; border: none; background: #007bff; color: white; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .card { background: white; border-radius: 8px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .card h3 { margin: 0 0 6px 0; color: #007bff; }
+    .card p { margin: 4px 0; font-size: 14px; color: #555; }
+    .loading { text-align: center; color: #666; font-style: italic; }
+  </style>
 </head>
 <body>
 
-<h1>Local Pulse</h1>
+  <h1>Local Pulse</h1>
 
-<div class="nav">
-<button onclick="loadTab('HelpRequests')">Help Requests</button>
-<button onclick="loadTab('Alerts')">Alerts</button>
-<button onclick="loadTab('Offers')">Offers</button>
-<button onclick="loadTab('Events')">Events</button>
-</div>
+  <div class="nav">
+    <button onclick="loadTab('HelpRequests')">Help Requests</button>
+    <button onclick="loadTab('Alerts')">Alerts</button>
+    <button onclick="loadTab('Offers')">Offers</button>
+    <button onclick="loadTab('Events')">Events</button>
+  </div>
 
-<div id="content" class="loading">Select a category above...</div>
+  <div id="content" class="loading">Select a category above...</div>
 
-<script>
-// PASTE YOUR 4 PUBLISHED CSV LINKS HERE:
-const SHEET_URLS = {
-HelpRequests: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=2019626100&single=true&output=csv",
-Alerts: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=453977520&single=true&output=csv",
-Offers: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=130794304&single=true&output=csv",
-Events: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=186525424&single=true&output=csv"
-};
+  <script>
+    const SHEET_URLS = {
+      HelpRequests: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=2019626100&single=true&output=csv",
+      Alerts: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=453977520&single=true&output=csv",
+      Offers: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=130794304&single=true&output=csv",
+      Events: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=186525424&single=true&output=csv"
+    };
 
-function parseCSV(text) {
-const lines = text.trim().split('\n');
-if (lines.length < 2) return [];
-const headers = lines[0].split(',').map(h => h.trim().replace(/^"(.)"/, '1'));
-return lines.slice(1).map(line => {
-const values = line.split(',').map(v => v.trim().replace(/^"(.)"1'));
-let obj = {};
-headers.forEach((h, i) => obj[h] = values[i] || '');
-return obj;
-});
-}
+    function parseCSV(text) {
+      const lines = text.trim().split('\n');
+      if (lines.length < 2) return [];
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+      return lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+        let obj = {};
+        headers.forEach((h, i) => obj[h] = values[i] || '');
+        return obj;
+      });
+    }
 
-async function loadTab(tabName) {
-const content = document.getElementById('content');
-content.innerHTML = '<div class="loading">Loading posts...</div>';
-const url = SHEET_URLS[tabName];
+    async function loadTab(category) {
+      const container = document.getElementById('content');
+      container.className = 'loading';
+      container.innerHTML = 'Loading data...';
 
-if (!url || url.includes("PASTE_")) {
-content.innerHTML = <div class="card"&gt;&lt;p&gt;Please add your valid CSV link for &lt;b&gt;${tabName}</b> in the code.</p></div>`;
-return;
-}
+      try {
+        const response = await fetch(SHEET_URLS[category]);
+        if (!response.ok) throw new Error('Network error');
+        const csvText = await response.text();
+        const data = parseCSV(csvText);
 
-try {
-const response = await fetch(url + '&t=' + new Date().getTime());
-const dataText = await response.text();
-const items = parseCSV(dataText);
+        if (data.length === 0) {
+          container.innerHTML = '<p>No items found in this category.</p>';
+          return;
+        }
 
-if (items.length === 0) {
-content.innerHTML = '<div class="card"><p>No posts available in this section yet.</p></div>';
-return;
-}
-
-let html = '';
-items.forEach(item => {
-html += <div class="card">;
-Object.keys(item).forEach(key => {
-if (item[key]) {
-html += <p&gt;&lt;strong&gt;${key}:</strong> ${item[key]}</p>; } }); html +=`;
-});
-content.innerHTML = html;
-
-} catch (err) {
-content.innerHTML = '<div class="card"><p>Error loading data. Make sure the sheet tab is published as CSV.</p></div>';
-}
-}
-
-// Load Help Requests by default on page load
-loadTab('HelpRequests');
-</script>
-
+        container.className = '';
+        container.innerHTML = data.map(item => `
+          <div class="card">
+            <h3>${item.details || item.type || 'Entry'}</h3>
+            <p><strong>Status:</strong> ${item.status || 'N/A'}</p>
+            <p><strong>Date:</strong> ${item.date || 'N/A'}</p>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = '<p style="color:red;">Failed to load data. Please check connection.</p>';
+      }
+    }
+  </script>
 </body>
 </html>
+
