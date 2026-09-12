@@ -30,23 +30,19 @@
   <div id="content" class="loading">Select a category above...</div>
 
   <script>
-    const SHEET_URLS = {
-      HelpRequests: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=2019626100&single=true&output=csv",
-      Alerts: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=453977520&single=true&output=csv",
-      Offers: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=130794304&single=true&output=csv",
-      Events: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=186525424&single=true&output=csv"
+    const SHEET_ID = "1LuOQhswi3-YBCDl3i43O3Kl9eVTXDqwUgxkMfWlNeBs";
+
+    const GIDS = {
+      HelpRequests: "2019626100",
+      Alerts: "453977520",
+      Offers: "130794304",
+      Events: "186525424"
     };
 
-    // Try a couple of proxy options in order, since free CORS proxies
-    // occasionally go down or rate-limit. If the first fails, we try the next.
-    // Note: corsproxy.io now restricts its free tier to localhost only, so
-    // it won't work from a deployed GitHub Pages site — deliberately excluded.
-    function proxyUrls(targetUrl) {
-      const encoded = encodeURIComponent(targetUrl);
-      return [
-        'https://api.codetabs.com/v1/proxy?quest=' + encoded,
-        'https://api.allorigins.win/raw?url=' + encoded
-      ];
+    // Google's visualization query endpoint supports cross-origin requests
+    // directly (no proxy needed), unlike the "publish to web" CSV link.
+    function gvizCsvUrl(gid) {
+      return 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&gid=' + gid;
     }
 
     function parseCSV(text) {
@@ -61,38 +57,26 @@
       });
     }
 
-    async function fetchWithFallback(targetUrl) {
-      const attempts = proxyUrls(targetUrl);
-      const failures = [];
-
-      for (const proxied of attempts) {
-        const proxyName = proxied.split('/')[2];
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
-        try {
-          const response = await fetch(
-            proxied + (proxied.includes('?') ? '&' : '?') + 't=' + Date.now(),
-            { signal: controller.signal }
-          );
-          clearTimeout(timeoutId);
-          if (!response.ok) {
-            failures.push(proxyName + ': HTTP ' + response.status);
-            continue;
-          }
-          const text = await response.text();
-          // Some proxies return an error page instead of the CSV — sanity check.
-          if (text.trim().toLowerCase().startsWith('<!doctype') || text.trim().length === 0) {
-            failures.push(proxyName + ': unexpected/empty response');
-            continue;
-          }
-          return text;
-        } catch (err) {
-          clearTimeout(timeoutId);
-          const reason = err && err.name === 'AbortError' ? 'timed out after 8s' : (err && err.message ? err.message : 'network error');
-          failures.push(proxyName + ': ' + reason);
+    async function fetchSheet(gid) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      try {
+        const url = gvizCsvUrl(gid) + '&t=' + Date.now();
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status);
         }
+        const text = await response.text();
+        if (text.trim().length === 0) {
+          throw new Error('empty response');
+        }
+        return text;
+      } catch (err) {
+        clearTimeout(timeoutId);
+        const reason = err && err.name === 'AbortError' ? 'timed out after 8s' : (err && err.message ? err.message : 'network error');
+        throw new Error(reason);
       }
-      throw new Error(failures.join(' | '));
     }
 
     async function loadTab(category) {
@@ -101,7 +85,7 @@
       container.innerHTML = 'Loading data...';
 
       try {
-        const csvText = await fetchWithFallback(SHEET_URLS[category]);
+        const csvText = await fetchSheet(GIDS[category]);
         const data = parseCSV(csvText);
 
         if (data.length === 0) {
