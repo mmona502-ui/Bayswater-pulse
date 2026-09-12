@@ -13,6 +13,7 @@
     .card h3 { margin: 0 0 6px 0; color: #007bff; }
     .card p { margin: 4px 0; font-size: 14px; color: #555; }
     .loading { text-align: center; color: #666; font-style: italic; }
+    .error { color: #c0392b; background: #fdecea; border: 1px solid #f5c6cb; border-radius: 6px; padding: 12px; font-size: 13px; word-break: break-word; }
   </style>
 </head>
 <body>
@@ -36,6 +37,16 @@
       Events: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTw65f354HxaXmsXxGbAL9HMC3lIV17MbK-ueqQtvM9MGTY74kfPArdKbtQ0-_99-CCvoD7-azifDQO/pub?gid=186525424&single=true&output=csv"
     };
 
+    // Try a couple of proxy options in order, since free CORS proxies
+    // occasionally go down or rate-limit. If the first fails, we try the next.
+    function proxyUrls(targetUrl) {
+      const encoded = encodeURIComponent(targetUrl);
+      return [
+        'https://api.allorigins.win/raw?url=' + encoded,
+        'https://corsproxy.io/?url=' + encoded
+      ];
+    }
+
     function parseCSV(text) {
       const lines = text.trim().split('\n');
       if (lines.length < 2) return [];
@@ -48,19 +59,42 @@
       });
     }
 
+    async function fetchWithFallback(targetUrl) {
+      const attempts = proxyUrls(targetUrl);
+      let lastError = null;
+
+      for (const proxied of attempts) {
+        try {
+          const response = await fetch(proxied + '&t=' + Date.now());
+          if (!response.ok) {
+            lastError = new Error('HTTP ' + response.status + ' from ' + proxied);
+            continue;
+          }
+          const text = await response.text();
+          // Some proxies return an error page instead of the CSV — sanity check.
+          if (text.includes('<html') || text.trim().length === 0) {
+            lastError = new Error('Proxy returned unexpected content');
+            continue;
+          }
+          return text;
+        } catch (err) {
+          lastError = err;
+        }
+      }
+      throw lastError || new Error('All fetch attempts failed');
+    }
+
     async function loadTab(category) {
       const container = document.getElementById('content');
       container.className = 'loading';
       container.innerHTML = 'Loading data...';
 
       try {
-        const response = await fetch('https://corsproxy.io/?url=' + encodeURIComponent(SHEET_URLS[category]));
-
-        if (!response.ok) throw new Error('Network error');
-        const csvText = await response.text();
+        const csvText = await fetchWithFallback(SHEET_URLS[category]);
         const data = parseCSV(csvText);
 
         if (data.length === 0) {
+          container.className = '';
           container.innerHTML = '<p>No items found in this category.</p>';
           return;
         }
@@ -74,10 +108,10 @@
           </div>
         `).join('');
       } catch (err) {
-        container.innerHTML = '<p style="color:red;">Failed to load data. Please check connection.</p>';
+        container.className = 'error';
+        container.innerHTML = 'Failed to load data.<br><small>' + (err && err.message ? err.message : err) + '</small>';
       }
     }
   </script>
 </body>
 </html>
-
