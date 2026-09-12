@@ -39,11 +39,13 @@
 
     // Try a couple of proxy options in order, since free CORS proxies
     // occasionally go down or rate-limit. If the first fails, we try the next.
+    // Note: corsproxy.io now restricts its free tier to localhost only, so
+    // it won't work from a deployed GitHub Pages site — deliberately excluded.
     function proxyUrls(targetUrl) {
       const encoded = encodeURIComponent(targetUrl);
       return [
-        'https://api.allorigins.win/raw?url=' + encoded,
-        'https://corsproxy.io/?url=' + encoded
+        'https://api.codetabs.com/v1/proxy?quest=' + encoded,
+        'https://api.allorigins.win/raw?url=' + encoded
       ];
     }
 
@@ -61,27 +63,28 @@
 
     async function fetchWithFallback(targetUrl) {
       const attempts = proxyUrls(targetUrl);
-      let lastError = null;
+      const failures = [];
 
       for (const proxied of attempts) {
+        const proxyName = proxied.split('/')[2];
         try {
-          const response = await fetch(proxied + '&t=' + Date.now());
+          const response = await fetch(proxied + (proxied.includes('?') ? '&' : '?') + 't=' + Date.now());
           if (!response.ok) {
-            lastError = new Error('HTTP ' + response.status + ' from ' + proxied);
+            failures.push(proxyName + ': HTTP ' + response.status);
             continue;
           }
           const text = await response.text();
           // Some proxies return an error page instead of the CSV — sanity check.
-          if (text.includes('<html') || text.trim().length === 0) {
-            lastError = new Error('Proxy returned unexpected content');
+          if (text.trim().toLowerCase().startsWith('<!doctype') || text.trim().length === 0) {
+            failures.push(proxyName + ': unexpected/empty response');
             continue;
           }
           return text;
         } catch (err) {
-          lastError = err;
+          failures.push(proxyName + ': ' + (err && err.message ? err.message : 'network error'));
         }
       }
-      throw lastError || new Error('All fetch attempts failed');
+      throw new Error(failures.join(' | '));
     }
 
     async function loadTab(category) {
