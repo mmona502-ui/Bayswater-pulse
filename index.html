@@ -1,122 +1,461 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Local Pulse</title>
-  <style>
-    body { font-family: sans-serif; padding: 16px; background: #f4f4f9; color: #333; }
-    h1 { text-align: center; }
-    .nav { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
-    .nav button { padding: 10px 14px; border: none; background: #007bff; color: white; border-radius: 6px; font-weight: bold; cursor: pointer; }
-    .card { background: white; border-radius: 8px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .card h3 { margin: 0 0 6px 0; color: #007bff; }
-    .card p { margin: 4px 0; font-size: 14px; color: #555; }
-    .loading { text-align: center; color: #666; font-style: italic; }
-    .error { color: #c0392b; background: #fdecea; border: 1px solid #f5c6cb; border-radius: 6px; padding: 12px; font-size: 13px; word-break: break-word; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #EAF1F8;
+    --ink: #223047;
+    --paper: #FFFDF8;
+    --help: #F0A63A;
+    --alert: #E85D4E;
+    --offer: #2FA88F;
+    --event: #7C6FE0;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito Sans', sans-serif;
+    margin: 0;
+    padding: 0 0 100px 0;
+    background: var(--sky);
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(240,166,58,0.10) 0, transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(124,111,224,0.10) 0, transparent 45%);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    padding: 32px 16px 6px;
+  }
+
+  header h1 {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 2.2rem;
+    margin: 0;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+  }
+
+  .subline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 6px 0 0;
+    font-size: 0.9rem;
+    color: #5A6B85;
+  }
+
+  .refresh-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #5A6B85;
+    padding: 2px 4px;
+    line-height: 1;
+    transition: transform 0.4s ease;
+  }
+
+  .refresh-btn.spinning { animation: spin 0.7s linear infinite; }
+
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .nav {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 22px auto 8px;
+    padding: 0 16px;
+    flex-wrap: wrap;
+    max-width: 640px;
+  }
+
+  .nav button {
+    position: relative;
+    font-family: 'Nunito Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 999px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.12);
+    transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.15s ease;
+    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nav button:active { transform: translateY(2px) scale(0.97); box-shadow: 0 1px 0 rgba(0,0,0,0.12); }
+
+  .nav button.active { opacity: 1; transform: translateY(-2px); box-shadow: 0 5px 0 rgba(0,0,0,0.14); }
+
+  .nav button[data-cat="HelpRequests"] { background: var(--help); }
+  .nav button[data-cat="Alerts"] { background: var(--alert); }
+  .nav button[data-cat="Offers"] { background: var(--offer); }
+  .nav button[data-cat="Events"] { background: var(--event); }
+
+  .count {
+    background: rgba(255,255,255,0.35);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    padding: 1px 7px;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  #content {
+    max-width: 640px;
+    margin: 20px auto;
+    padding: 0 16px;
+  }
+
+  .loading-text {
+    text-align: center;
+    color: #7A88A0;
+    font-style: italic;
+    padding: 20px 0 4px;
+  }
+
+  .skeleton-card {
+    background: var(--paper);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 14px rgba(34,48,71,0.06);
+  }
+
+  .skeleton-line {
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #ECEBE5 25%, #F5F4EF 37%, #ECEBE5 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    margin-bottom: 10px;
+  }
+
+  .skeleton-line.title { width: 45%; height: 16px; }
+  .skeleton-line.short { width: 65%; }
+  .skeleton-line:last-child { margin-bottom: 0; }
+
+  @keyframes shimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+  }
+
+  .empty {
+    text-align: center;
+    color: #7A88A0;
+    padding: 40px 16px;
+    font-size: 0.95rem;
+  }
+
+  .empty .emoji { font-size: 2.2rem; display: block; margin-bottom: 8px; }
+
+  .card {
+    background: var(--paper);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    border-left: 6px solid var(--cat-color, #ccc);
+    box-shadow: 0 4px 14px rgba(34,48,71,0.07);
+    position: relative;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: rise 0.35s ease forwards;
+    animation-delay: calc(var(--i, 0) * 60ms);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .card:active {
+    transform: scale(0.985);
+    box-shadow: 0 2px 8px rgba(34,48,71,0.08);
+  }
+
+  @keyframes rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card .badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    color: white;
+    background: var(--cat-color, #999);
+    margin-bottom: 8px;
+  }
+
+  .card h3 {
+    font-family: 'Baloo 2', sans-serif;
+    margin: 0 0 8px 0;
+    font-size: 1.15rem;
+    color: var(--ink);
+  }
+
+  .card p {
+    margin: 4px 0;
+    font-size: 0.9rem;
+    color: #4A5A72;
+  }
+
+  .card p strong { color: var(--ink); }
+
+  .error {
+    color: #B03A2E;
+    background: #FDECEA;
+    border: 1px solid #F5C6CB;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 0.85rem;
+    word-break: break-word;
+  }
+
+  .fab {
+    position: fixed;
+    right: 20px;
+    bottom: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    color: white;
+    font-size: 1.8rem;
+    line-height: 56px;
+    text-align: center;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    cursor: pointer;
+    background: var(--cat-color, var(--ink));
+    transition: transform 0.15s ease;
+    text-decoration: none;
+    display: none;
+  }
+
+  .fab:active { transform: scale(0.92); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card { animation: none; opacity: 1; transform: none; }
+    .refresh-btn.spinning { animation: none; }
+    .skeleton-line { animation: none; }
+  }
+</style>
 </head>
 <body>
 
+<header>
   <h1>Local Pulse</h1>
-
-  <div class="nav">
-    <button onclick="loadTab('HelpRequests')">Help Requests</button>
-    <button onclick="loadTab('Alerts')">Alerts</button>
-    <button onclick="loadTab('Offers')">Offers</button>
-    <button onclick="loadTab('Events')">Events</button>
+  <div class="subline">
+    <span id="subline-text">What's happening around the neighbourhood</span>
+    <button class="refresh-btn" id="refresh-btn" onclick="refreshCurrent()" title="Refresh">⟳</button>
   </div>
+</header>
 
-  <div id="content" class="loading">Select a category above...</div>
+<div class="nav">
+  <button data-cat="HelpRequests" onclick="loadTab('HelpRequests')">🤝 Help <span class="count" id="count-HelpRequests"></span></button>
+  <button data-cat="Alerts" onclick="loadTab('Alerts')">📢 Alerts <span class="count" id="count-Alerts"></span></button>
+  <button data-cat="Offers" onclick="loadTab('Offers')">🏷️ Offers <span class="count" id="count-Offers"></span></button>
+  <button data-cat="Events" onclick="loadTab('Events')">🎈 Events <span class="count" id="count-Events"></span></button>
+</div>
 
-  <script>
-    const SHEET_ID = "1LuOQhswi3-YBCDl3i43O3Kl9eVTXDqwUgxkMfWlNeBs";
+<div id="content" class="loading-text">Select a category above...</div>
 
-    const GIDS = {
-      HelpRequests: "2019626100",
-      Alerts: "453977520",
-      Offers: "130794304",
-      Events: "186525424"
-    };
+<a id="fab" class="fab" target="_blank" rel="noopener">+</a>
 
-    // Google's visualization query endpoint supports cross-origin requests
-    // directly (no proxy needed), unlike the "publish to web" CSV link.
-    function gvizCsvUrl(gid) {
-      return 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&gid=' + gid;
+<script>
+  const SHEET_ID = "1LuOQhswi3-YBCDl3i43O3Kl9eVTXDqwUgxkMfWlNeBs";
+
+  const CATEGORIES = {
+    HelpRequests: { gid: "2019626100", color: "var(--help)", form: "PASTE_HELPREQUESTS_FORM_URL", emoji: "🤝" },
+    Alerts:       { gid: "453977520",  color: "var(--alert)", form: "PASTE_ALERTS_FORM_URL", emoji: "📢" },
+    Offers:       { gid: "130794304",  color: "var(--offer)", form: "PASTE_OFFERS_FORM_URL", emoji: "🏷️" },
+    Events:       { gid: "186525424",  color: "var(--event)", form: "PASTE_EVENTS_FORM_URL", emoji: "🎈" }
+  };
+
+  let currentCategory = 'HelpRequests';
+  const cache = {};
+
+  function gvizCsvUrl(gid) {
+    return 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&gid=' + gid;
+  }
+
+  function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    return lines.slice(1).map(line => {
+      const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      let obj = {};
+      headers.forEach((h, i) => obj[h] = values[i] || '');
+      return obj;
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  async function fetchSheet(gid) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    try {
+      const url = gvizCsvUrl(gid) + '&t=' + Date.now();
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const text = await response.text();
+      if (text.trim().length === 0) throw new Error('empty response');
+      return text;
+    } catch (err) {
+      clearTimeout(timeoutId);
+      const reason = err && err.name === 'AbortError' ? 'timed out after 8s' : (err && err.message ? err.message : 'network error');
+      throw new Error(reason);
     }
+  }
 
-    function parseCSV(text) {
-      const lines = text.trim().split('\n');
-      if (lines.length < 2) return [];
-      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-      return lines.slice(1).map(line => {
-        const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
-        let obj = {};
-        headers.forEach((h, i) => obj[h] = values[i] || '');
-        return obj;
-      });
+  function setActiveButton(category) {
+    document.querySelectorAll('.nav button').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.cat === category);
+    });
+  }
+
+  function setFab(category) {
+    const fab = document.getElementById('fab');
+    const cfg = CATEGORIES[category];
+    if (!cfg.form || cfg.form.startsWith('PASTE_')) {
+      fab.style.display = 'none';
+      return;
     }
+    fab.href = cfg.form;
+    fab.style.setProperty('--cat-color', cfg.color);
+    fab.style.display = 'block';
+  }
 
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
+  function renderSkeleton() {
+    const container = document.getElementById('content');
+    container.className = '';
+    let html = '';
+    for (let i = 0; i < 3; i++) {
+      html += `
+        <div class="skeleton-card">
+          <div class="skeleton-line title"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+        </div>
+      `;
     }
+    container.innerHTML = html;
+  }
 
-    async function fetchSheet(gid) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
-      try {
-        const url = gvizCsvUrl(gid) + '&t=' + Date.now();
-        const response = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (!response.ok) {
-          throw new Error('HTTP ' + response.status);
-        }
-        const text = await response.text();
-        if (text.trim().length === 0) {
-          throw new Error('empty response');
-        }
-        return text;
-      } catch (err) {
-        clearTimeout(timeoutId);
-        const reason = err && err.name === 'AbortError' ? 'timed out after 8s' : (err && err.message ? err.message : 'network error');
-        throw new Error(reason);
+  function renderCards(category, data) {
+    const container = document.getElementById('content');
+    const color = CATEGORIES[category].color;
+    container.className = '';
+    container.innerHTML = data.map((item, i) => {
+      const keys = Object.keys(item).filter(k => item[k]);
+      const titleKey = keys[0];
+      const rest = keys.slice(1);
+      return `
+        <div class="card" style="--cat-color: ${color}; --i: ${i}">
+          <span class="badge">${category.replace(/([A-Z])/g, ' $1').trim()}</span>
+          <h3>${titleKey ? escapeHtml(item[titleKey]) : 'Entry'}</h3>
+          ${rest.map(k => `<p><strong>${escapeHtml(k)}:</strong> ${escapeHtml(item[k])}</p>`).join('')}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderEmpty(category) {
+    const container = document.getElementById('content');
+    container.className = 'empty';
+    container.innerHTML = `<span class="emoji">${CATEGORIES[category].emoji}</span>Nothing posted here yet — be the first!`;
+  }
+
+  function renderError(message) {
+    const container = document.getElementById('content');
+    container.className = 'error';
+    container.innerHTML = 'Failed to load data.<br><small>' + message + '</small>';
+  }
+
+  function updateSubline() {
+    document.getElementById('subline-text').textContent = 'Updated just now';
+  }
+
+  async function loadTab(category, forceRefresh) {
+    currentCategory = category;
+    setActiveButton(category);
+    setFab(category);
+    renderSkeleton();
+
+    try {
+      let data;
+      if (!forceRefresh && cache[category]) {
+        data = cache[category];
+      } else {
+        const csvText = await fetchSheet(CATEGORIES[category].gid);
+        data = parseCSV(csvText);
+        cache[category] = data;
+        updateCountBadge(category, data.length);
       }
+
+      if (data.length === 0) {
+        renderEmpty(category);
+      } else {
+        renderCards(category, data);
+      }
+      updateSubline();
+    } catch (err) {
+      renderError(err && err.message ? err.message : err);
     }
+  }
 
-    async function loadTab(category) {
-      const container = document.getElementById('content');
-      container.className = 'loading';
-      container.innerHTML = 'Loading data...';
+  function updateCountBadge(category, count) {
+    const el = document.getElementById('count-' + category);
+    if (el) el.textContent = count > 0 ? count : '';
+  }
 
+  async function refreshCurrent() {
+    const btn = document.getElementById('refresh-btn');
+    btn.classList.add('spinning');
+    await loadTab(currentCategory, true);
+    btn.classList.remove('spinning');
+  }
+
+  async function preloadCounts() {
+    for (const category of Object.keys(CATEGORIES)) {
+      if (category === currentCategory) continue;
       try {
-        const csvText = await fetchSheet(GIDS[category]);
+        const csvText = await fetchSheet(CATEGORIES[category].gid);
         const data = parseCSV(csvText);
-
-        if (data.length === 0) {
-          container.className = '';
-          container.innerHTML = '<p>No items found in this category.</p>';
-          return;
-        }
-
-        container.className = '';
-        container.innerHTML = data.map(item => {
-          const keys = Object.keys(item).filter(k => item[k]);
-          const titleKey = keys[0];
-          const rest = keys.slice(1);
-          return `
-          <div class="card">
-            <h3>${titleKey ? escapeHtml(item[titleKey]) : 'Entry'}</h3>
-            ${rest.map(k => `<p><strong>${escapeHtml(k)}:</strong> ${escapeHtml(item[k])}</p>`).join('')}
-          </div>
-        `;
-        }).join('');
+        cache[category] = data;
+        updateCountBadge(category, data.length);
       } catch (err) {
-        container.className = 'error';
-        container.innerHTML = 'Failed to load data.<br><small>' + (err && err.message ? err.message : err) + '</small>';
+        // Silent fail for background preloads — the tab will retry on click.
       }
     }
-  </script>
+  }
+
+  loadTab('HelpRequests').then(() => {
+    updateCountBadge('HelpRequests', cache['HelpRequests'] ? cache['HelpRequests'].length : 0);
+    preloadCounts();
+  });
+</script>
+
 </body>
 </html>
