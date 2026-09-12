@@ -54,7 +54,8 @@
       container.innerHTML = 'Loading data...';
 
       try {
-        const response = await fetch(SHEET_URLS[category]);
+        const response = await fetch('https://corsproxy.io/?url=' + encodeURIComponent(SHEET_URLS[category]));
+
         if (!response.ok) throw new Error('Network error');
         const csvText = await response.text();
         const data = parseCSV(csvText);
