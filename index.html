@@ -1,4 +1,4 @@
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -487,17 +487,19 @@
   const SEASONAL_BANNER = ""; // e.g. "School holidays are coming up — post your holiday events now!"
   const ADVERTISE_EMAIL = "mmona502@gmail.com";
 
+  // NOTE: these now reference tabs by NAME (matching your actual form-linked
+  // tabs) instead of by gid number — much easier to keep in sync.
   const CATEGORIES = {
-    Alerts:       { gid: "453977520",  color: "var(--rust)",  emoji: "📢", tabLabel: "Updates",
+    Alerts:       { sheet: "update/ alert form",       color: "var(--rust)",  emoji: "📢", tabLabel: "Updates",
                     title: "Notices & updates", desc: "Roadworks, bin schedule changes, and anything else the street should know.",
                     form: "https://docs.google.com/forms/d/e/1FAIpQLSdjV1LoI-Ta3ziq0fgFZMNWzLOk27bQ27CN7sIXpWrwf3gsnw/viewform?usp=publish-editor" },
-    HelpRequests: { gid: "2019626100", color: "var(--gold)",  emoji: "🤝", tabLabel: "Favours",
+    HelpRequests: { sheet: "Favours form",             color: "var(--gold)",  emoji: "🤝", tabLabel: "Favours",
                     title: "Favours", desc: "Ask for a hand, or lend one — dog walks, moving boxes, borrowed tools.",
                     form: "https://docs.google.com/forms/d/e/1FAIpQLSdWo1Vct8pAbzOXm2zuRlF2dnd9HM4FeaVtiXZenJFtEyjeRw/viewform?usp=publish-editor" },
-    Events:       { gid: "186525424",  color: "var(--teal)",  emoji: "📅", tabLabel: "Events",
+    Events:       { sheet: "Events form",              color: "var(--teal)",  emoji: "📅", tabLabel: "Events",
                     title: "Events", desc: "School-holiday programs, markets, and local get-togethers.",
-                    form: "https://docs.google.com/forms/d/e/1FAIpQLSeMuQfZu_9_r-Qxg4oSdRUCgm65hM2t3eHE7zoXjgDVId3aXw/viewform?usp=publish-editor" },
-    Offers:       { gid: "130794304",  color: "var(--steel)", emoji: "🏢", tabLabel: "Directory",
+                    form: "https://docs.google.com/forms/d/e/1FAIpQLSfPrYe2-mgL1Yse8YgYU5GIE8lkNSax4m9b8o5XTqfhWFqsiw/viewform?usp=publish-editor" },
+    Offers:       { sheet: "directory/ business form", color: "var(--steel)", emoji: "🏢", tabLabel: "Directory",
                     title: "Directory", desc: "Local businesses and the deals worth knowing about.",
                     form: "https://docs.google.com/forms/d/e/1FAIpQLSdYcc_7_OsKYKznwODilR3Da6Ii-CPIqgLWbVn7qOhg3wfBIg/viewform?usp=publish-editor" }
   };
@@ -514,8 +516,8 @@
     document.getElementById('seasonal-banner').style.display = 'block';
   }
 
-  function gvizCsvUrl(gid) {
-    return 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&gid=' + gid;
+  function gvizCsvUrl(sheetName) {
+    return 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(sheetName);
   }
 
   function parseCSV(text) {
@@ -536,16 +538,19 @@
     return div.innerHTML;
   }
 
-  async function fetchSheet(gid) {
+  async function fetchSheet(sheetName) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
     try {
-      const url = gvizCsvUrl(gid) + '&t=' + Date.now();
+      const url = gvizCsvUrl(sheetName) + '&t=' + Date.now();
       const response = await fetch(url, { signal: controller.signal });
       clearTimeout(timeoutId);
       if (!response.ok) throw new Error('HTTP ' + response.status);
       const text = await response.text();
       if (text.trim().length === 0) throw new Error('empty response');
+      if (/invalid query|unable to parse query/i.test(text) || /^\s*<html/i.test(text)) {
+        throw new Error('sheet tab not found — check the name matches exactly: "' + sheetName + '"');
+      }
       return text;
     } catch (err) {
       clearTimeout(timeoutId);
@@ -578,7 +583,7 @@
       let day, month, year;
       if (c > 31) { // a/b/YYYY
         year = c;
-        if (a > 12) { day = a; month = b; } else { day = a; month = b; } // assume D/M/Y
+        day = a; month = b; // assume D/M/Y
       } else if (a > 31) { // YYYY/M/D
         year = a; month = b; day = c;
       } else {
@@ -790,7 +795,7 @@
       if (!forceRefresh && cache[category]) {
         raw = cache[category];
       } else {
-        const csvText = await fetchSheet(CATEGORIES[category].gid);
+        const csvText = await fetchSheet(CATEGORIES[category].sheet);
         const parsed = parseCSV(csvText);
         raw = parsed.filter(isApproved);
         cache[category] = raw;
@@ -826,7 +831,7 @@
     for (const category of Object.keys(CATEGORIES)) {
       if (category === currentCategory || cache[category]) continue;
       try {
-        const csvText = await fetchSheet(CATEGORIES[category].gid);
+        const csvText = await fetchSheet(CATEGORIES[category].sheet);
         cache[category] = parseCSV(csvText).filter(isApproved);
         updateStats();
       } catch (err) {
