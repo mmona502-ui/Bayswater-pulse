@@ -566,11 +566,15 @@
     return key || null;
   }
 
+  function hasColumn(item, regex) {
+    return Object.keys(item).find(k => regex.test(k)) || null;
+  }
+
   function isApproved(item) {
-    const key = findField(item, /approved/i);
-    if (!key) return true; // no moderation column present — show everything
-    const v = item[key].trim().toLowerCase();
-    if (['no', 'false', 'pending', 'n', '0'].includes(v)) return false;
+    const key = hasColumn(item, /approved/i);
+    if (!key) return true; // no moderation column present at all — show everything
+    const v = (item[key] || '').trim().toLowerCase();
+    if (v === '' || ['no', 'false', 'pending', 'n', '0'].includes(v)) return false; // blank = not yet approved
     return true;
   }
 
