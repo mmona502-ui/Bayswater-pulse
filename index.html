@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2C4732">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script data-goatcounter="https://localpulse.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<title>Local Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #2C4732;
+    --forest-dark: #1F3424;
+    --cream: #F7F1E2;
+    --paper: #FFFFFF;
+    --ink: #2A2E27;
+    --muted: #6B7268;
+    --rust: #C1502E;
+    --gold: #B9862B;
+    --teal: #1F6F5C;
+    --steel: #3B6EA5;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito Sans', sans-serif;
+    margin: 0;
+    padding: 0 0 40px 0;
+    background: var(--cream);
+    color: var(--ink);
+  }
+
+  h1, h2, h3 { font-family: 'Lora', serif; margin: 0; }
+
+  /* ---------- HERO ---------- */
+
+  .hero {
+    background: var(--forest);
+    color: var(--cream);
+    padding: 30px 20px 26px;
+    position: relative;
+  }
+
+  .hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hero-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .icon-btn {
+    background: rgba(255,255,255,0.12);
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    font-size: 1.1rem;
+    color: var(--cream);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.4s ease;
+  }
+
+  .icon-btn.spinning { animation: spin 0.7s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  #install-btn { display: none; }
+
+  .hero-sub {
+    margin-top: 6px;
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+
+  .hero-sub u { text-decoration-color: rgba(247,241,226,0.55); }
+
+  .hero-tagline {
+    font-family: 'Lora', serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-top: 18px;
+    max-width: 44ch;
+  }
+
+  .stats {
+    display: flex;
+    gap: 34px;
+    margin-top: 26px;
+    flex-wrap: wrap;
+  }
+
+  .stat-num {
+    font-family: 'Lora', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.82rem;
+    opacity: 0.85;
+    margin-top: 4px;
+  }
+
+  .scallop {
+    height: 14px;
+    background:
+      radial-gradient(circle at 10px 0, transparent 9px, var(--forest) 9.5px) top left / 20px 14px repeat-x;
+    margin-top: 24px;
+  }
+
+  /* ---------- SEASONAL BANNER ---------- */
+
+  .seasonal-banner {
+    max-width: 640px;
+    margin: 16px auto 0;
+    padding: 0 20px;
+  }
+
+  .seasonal-banner-inner {
+    background: #FBEFD8;
+    border: 1px solid #E9D3A0;
+    color: #6B4E1A;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.87rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .featured-section {
+    max-width: 640px;
+    margin: 16px auto 0;
+  }
+
+  .featured-heading {
+    font-family: 'Lora', serif;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0 20px 8px;
+    color: var(--ink);
+  }
+
+  .featured-strip {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 0 20px 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .featured-chip {
+    background: var(--paper);
+    border-radius: 10px;
+    padding: 12px 14px;
+    min-width: 160px;
+    max-width: 200px;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(42,46,39,0.08);
+    border-top: 3px solid var(--steel);
+  }
+
+  .featured-chip strong {
+    display: block;
+    font-size: 0.92rem;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+
+  .featured-chip span {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* ---------- TABS ---------- */
+
+  .tabs {
+    display: flex;
+    justify-content: space-around;
+    background: var(--cream);
+    padding: 14px 8px 0;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .tab {
+    background: none;
+    border: none;
+    font-family: 'Nunito Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--muted);
+    padding: 4px 4px 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .tab .emoji { font-size: 1.3rem; }
+
+  .tab.active { color: var(--ink); border-color: var(--rust); }
+
+  /* ---------- SECTION ---------- */
+
+  .section {
+    max-width: 640px;
+    margin: 22px auto 0;
+    padding: 0 20px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .section-head h2 { font-size: 1.5rem; }
+
+  .post-btn {
+    background: var(--rust);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-family: 'Nunito Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: transform 0.12s ease;
+    flex-shrink: 0;
+  }
+
+  .post-btn:active { transform: scale(0.96); }
+
+  .section-desc {
+    color: var(--muted);
+    font-size: 0.92rem;
+    margin-top: 8px;
+    max-width: 52ch;
+  }
+
+  .how-to-post {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  /* ---------- SEARCH + FILTERS ---------- */
+
+  .search-row {
+    margin-top: 16px;
+    position: relative;
+  }
+
+  .search-row input {
+    width: 100%;
+    padding: 10px 14px 10px 36px;
+    border-radius: 8px;
+    border: 1px solid #DDD5C0;
+    background: var(--paper);
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+
+  .search-row input:focus { outline: 2px solid var(--rust); outline-offset: 1px; }
+
+  .search-row::before {
+    content: "🔍";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+
+  .filter-pills {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .filter-pill {
+    background: var(--paper);
+    border: 1px solid #DDD5C0;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .filter-pill.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: white;
+  }
+
+  /* ---------- CARDS ---------- */
+
+  .card-list { margin-top: 18px; }
+
+  .card {
+    background: var(--paper);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    border-left: 5px solid var(--cat-color, #ccc);
+    box-shadow: 0 3px 10px rgba(42,46,39,0.06);
+    opacity: 0;
+    transform: translateY(8px);
+    animation: rise 0.32s ease forwards;
+    animation-delay: calc(var(--i, 0) * 55ms);
+  }
+
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .card-tag {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--cat-color, var(--ink));
+  }
+
+  .card-date {
+    font-size: 0.8rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .card h3 {
+    font-size: 1.15rem;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+
+  .card p {
+    margin: 3px 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .card p strong { color: var(--ink); }
+
+  .card-bottom {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+
+  .share-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .share-btn:active { background: #F0EBDC; }
+
+  /* ---------- STATES ---------- */
+
+  .loading-text, .empty-text {
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+    padding: 30px 0 10px;
+  }
+
+  .skeleton-card {
+    background: var(--paper);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 3px 10px rgba(42,46,39,0.05);
+  }
+
+  .skeleton-line {
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #ECE7D8 25%, #F5F1E6 37%, #ECE7D8 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    margin-bottom: 10px;
+  }
+
+  .skeleton-line.title { width: 45%; height: 16px; }
+  .skeleton-line.short { width: 65%; }
+  .skeleton-line:last-child { margin-bottom: 0; }
+
+  @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+  .error {
+    color: #B03A2E;
+    background: #FCEBE7;
+    border: 1px solid #F2C6BB;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 0.85rem;
+    word-break: break-word;
+    margin-top: 12px;
+  }
+
+  .site-footer {
+    max-width: 640px;
+    margin: 34px auto 0;
+    padding: 16px 20px 0;
+    text-align: center;
+    border-top: 1px solid #E4DCC5;
+  }
+
+  .site-footer a {
+    color: var(--forest);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .site-footer p {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin: 12px 0 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card { animation: none; opacity: 1; transform: none; }
+    .icon-btn.spinning { animation: none; }
+    .skeleton-line { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-top">
+    <div class="hero-title">📍 Local Pulse</div>
+    <div class="hero-actions">
+      <button class="icon-btn" id="install-btn" title="Add to Home Screen">📲</button>
+      <button class="icon-btn" id="refresh-btn" onclick="refreshCurrent()" title="Refresh">⟳</button>
+    </div>
+  </div>
+  <div class="hero-sub">Serving <u id="neighbourhood-name">your neighbourhood</u> and surrounding suburbs</div>
+  <div class="hero-tagline">A place where local connects local — whether it's an update to share, a favour to ask, or an event coming up.</div>
+  <div class="stats">
+    <div><div class="stat-num" id="stat-total">–</div><div class="stat-label">on the board</div></div>
+    <div><div class="stat-num" id="stat-favours">–</div><div class="stat-label">open favours</div></div>
+    <div><div class="stat-num" id="stat-directory">–</div><div class="stat-label">local businesses</div></div>
+  </div>
+</div>
+<div class="scallop"></div>
+
+<!-- Edit or clear SEASONAL_BANNER in the script below to change/hide this -->
+<div class="seasonal-banner" id="seasonal-banner" style="display:none;">
+  <div class="seasonal-banner-inner">🎒 <span id="seasonal-banner-text"></span></div>
+</div>
+
+<div class="featured-section" id="featured-section" style="display:none;"></div>
+
+<div class="tabs">
+  <button class="tab" data-cat="Alerts" onclick="loadTab('Alerts')"><span class="emoji">📢</span>Updates</button>
+  <button class="tab" data-cat="HelpRequests" onclick="loadTab('HelpRequests')"><span class="emoji">🤝</span>Favours</button>
+  <button class="tab" data-cat="Events" onclick="loadTab('Events')"><span class="emoji">📅</span>Events</button>
+  <button class="tab" data-cat="Offers" onclick="loadTab('Offers')"><span class="emoji">🏢</span>Directory</button>
+</div>
+
+<div class="section">
+  <div class="section-head">
+    <h2 id="section-title">Notices &amp; updates</h2>
+    <a id="post-btn" class="post-btn" target="_blank" rel="noopener">Post</a>
+  </div>
+  <div class="section-desc" id="section-desc">Roadworks, bin schedule changes, and anything else the street should know.</div>
+  <div class="how-to-post">Tap "Post" above to open a quick form — no login needed. New posts appear next time the page refreshes.</div>
+
+  <div class="search-row">
+    <input type="text" id="search-input" placeholder="Search this section..." oninput="applyFilters()">
+  </div>
+
+  <div class="filter-pills" id="status-filters" style="display:none;"></div>
+
+  <div class="card-list" id="content">
+    <div class="loading-text">Loading...</div>
+  </div>
+</div>
+
+<div class="site-footer">
+  <p>📣 Local business? <a id="advertise-link" href="#">Get in touch about advertising here</a></p>
+</div>
+
+<script>
+  const SHEET_ID = "1LuOQhswi3-YBCDl3i43O3Kl9eVTXDqwUgxkMfWlNeBs";
+
+  // Edit these two to customise for your area / season.
+  const NEIGHBOURHOOD = "Bayswater";
+  const SEASONAL_BANNER = ""; // e.g. "School holidays are coming up — post your holiday events now!"
+  const ADVERTISE_EMAIL = "mmona502@gmail.com";
+
+  // NOTE: these now reference tabs by NAME (matching your actual form-linked
+  // tabs) instead of by gid number — much easier to keep in sync.
+  const CATEGORIES = {
+    Alerts:       { sheet: "update/ alert form",       color: "var(--rust)",  emoji: "📢", tabLabel: "Updates",
+                    title: "Notices & updates", desc: "Roadworks, bin schedule changes, and anything else the street should know.",
+                    form: "https://docs.google.com/forms/d/e/1FAIpQLSdjV1LoI-Ta3ziq0fgFZMNWzLOk27bQ27CN7sIXpWrwf3gsnw/viewform?usp=publish-editor" },
+    HelpRequests: { sheet: "Favours form",             color: "var(--gold)",  emoji: "🤝", tabLabel: "Favours",
+                    title: "Favours", desc: "Ask for a hand, or lend one — dog walks, moving boxes, borrowed tools.",
+                    form: "https://docs.google.com/forms/d/e/1FAIpQLSdWo1Vct8pAbzOXm2zuRlF2dnd9HM4FeaVtiXZenJFtEyjeRw/viewform?usp=publish-editor",
+                    claimForm: "https://docs.google.com/forms/d/e/1FAIpQLSdO14KijpbX399Wm_iv6qZQEfvf_tNuUiJ-OjXlmtz44V4f-w/viewform?usp=publish-editor" },
+    Events:       { sheet: "Actual event form",       color: "var(--teal)",  emoji: "📅", tabLabel: "Events",
+                    title: "Events", desc: "School-holiday programs, markets, and local get-togethers.",
+                    form: "https://docs.google.com/forms/d/e/1FAIpQLSfPrYe2-mgL1Yse8YgYU5GIE8lkNSax4m9b8o5XTqfhWFqsiw/viewform?usp=publish-editor",
+                    rsvpForm: "https://docs.google.com/forms/d/e/1FAIpQLSdCy4zj7amcjqWDl-jgI9wzchoVIdsAe3XsniZqxK-kjzm6lQ/viewform?usp=publish-editor" },
+    Offers:       { sheet: "directory/ business form", color: "var(--steel)", emoji: "🏢", tabLabel: "Directory",
+                    title: "Directory", desc: "Local businesses and the deals worth knowing about.",
+                    form: "https://docs.google.com/forms/d/e/1FAIpQLSdYcc_7_OsKYKznwODilR3Da6Ii-CPIqgLWbVn7qOhg3wfBIg/viewform?usp=publish-editor" }
+  };
+
+  let currentCategory = 'Alerts';
+  let statusFilter = 'All';
+  const cache = {};       // raw parsed rows per category (after approval filtering)
+  const displayCache = {}; // sorted/hidden-past-events applied per category
+
+  document.getElementById('neighbourhood-name').textContent = NEIGHBOURHOOD;
+  document.getElementById('advertise-link').href = 'mailto:' + ADVERTISE_EMAIL + '?subject=Advertising on Local Pulse';
+  if (SEASONAL_BANNER) {
+    document.getElementById('seasonal-banner-text').textContent = SEASONAL_BANNER;
+    document.getElementById('seasonal-banner').style.display = 'block';
+  }
+
+  function gvizCsvUrl(sheetName) {
+    return 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(sheetName);
+  }
+
+  function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    return lines.slice(1).map(line => {
+      const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      let obj = {};
+      headers.forEach((h, i) => obj[h] = values[i] || '');
+      return obj;
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  async function fetchSheet(sheetName) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    try {
+      const url = gvizCsvUrl(sheetName) + '&t=' + Date.now();
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const text = await response.text();
+      if (text.trim().length === 0) throw new Error('empty response');
+      if (/invalid query|unable to parse query/i.test(text) || /^\s*<html/i.test(text)) {
+        throw new Error('sheet tab not found — check the name matches exactly: "' + sheetName + '"');
+      }
+      return text;
+    } catch (err) {
+      clearTimeout(timeoutId);
+      const reason = err && err.name === 'AbortError' ? 'timed out after 8s' : (err && err.message ? err.message : 'network error');
+      throw new Error(reason);
+    }
+  }
+
+  // ---- Field helpers ----
+
+  function findField(item, regex) {
+    const key = Object.keys(item).find(k => regex.test(k) && item[k]);
+    return key || null;
+  }
+
+  function hasColumn(item, regex) {
+    return Object.keys(item).find(k => regex.test(k)) || null;
+  }
+
+  function isApproved(item) {
+    const key = hasColumn(item, /approved/i);
+    if (!key) return true; // no moderation column present at all — show everything
+    const v = (item[key] || '').trim().toLowerCase();
+    if (v === '' || ['no', 'false', 'pending', 'n', '0'].includes(v)) return false; // blank = not yet approved
+    return true;
+  }
+
+  // Parses common date formats, preferring DD/MM/YYYY (Australian style).
+  function parseDateLoose(str) {
+    if (!str) return null;
+    const slashParts = str.trim().split(/[\/\-]/);
+    if (slashParts.length === 3 && slashParts.every(p => /^\d+$/.test(p))) {
+      let [a, b, c] = slashParts.map(Number);
+      let day, month, year;
+      if (c > 31) { // a/b/YYYY
+        year = c;
+        day = a; month = b; // assume D/M/Y
+      } else if (a > 31) { // YYYY/M/D
+        year = a; month = b; day = c;
+      } else {
+        return null;
+      }
+      const d = new Date(year, month - 1, day);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    const parsed = new Date(str);
+    return isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  function relativeTime(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / 86400000);
+    if (diffDays <= 0) return 'today';
+    if (diffDays === 1) return 'yesterday';
+    if (diffDays < 7) return diffDays + ' days ago';
+    const weeks = Math.floor(diffDays / 7);
+    if (weeks === 1) return '1 week ago';
+    if (weeks < 5) return weeks + ' weeks ago';
+    return date.toLocaleDateString();
+  }
+
+  // ---- Rendering ----
+
+  function setActiveTab(category) {
+    document.querySelectorAll('.tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.cat === category);
+    });
+  }
+
+  function setSectionChrome(category) {
+    const cfg = CATEGORIES[category];
+    document.getElementById('section-title').textContent = cfg.title;
+    document.getElementById('section-desc').textContent = cfg.desc;
+    document.getElementById('search-input').value = '';
+    const postBtn = document.getElementById('post-btn');
+    if (!cfg.form || cfg.form.startsWith('PASTE_')) {
+      postBtn.style.display = 'none';
+    } else {
+      postBtn.style.display = 'inline-block';
+      postBtn.href = cfg.form;
+    }
+  }
+
+  function renderSkeleton() {
+    const container = document.getElementById('content');
+    let html = '';
+    for (let i = 0; i < 3; i++) {
+      html += `
+        <div class="skeleton-card">
+          <div class="skeleton-line title"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+        </div>
+      `;
+    }
+    container.innerHTML = html;
+  }
+
+  function renderStatusFilters(category, data) {
+    const holder = document.getElementById('status-filters');
+    if (category !== 'HelpRequests') {
+      holder.style.display = 'none';
+      holder.innerHTML = '';
+      return;
+    }
+    const statusKey = data.length ? findField(data[0], /status/i) : null;
+    if (!statusKey) {
+      holder.style.display = 'none';
+      holder.innerHTML = '';
+      return;
+    }
+    const values = Array.from(new Set(data.map(d => d[statusKey]).filter(Boolean)));
+    const options = ['All', ...values];
+    holder.style.display = 'flex';
+    holder.innerHTML = options.map(v =>
+      `<button class="filter-pill ${statusFilter === v ? 'active' : ''}" onclick="setStatusFilter('${escapeHtml(v).replace(/'/g, "\\'")}')">${escapeHtml(v)}</button>`
+    ).join('');
+  }
+
+  function setStatusFilter(value) {
+    statusFilter = value;
+    applyFilters();
+  }
+
+  function shareCard(title, details, btn) {
+    const text = title + (details ? '\n' + details : '') + '\n' + window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: title, text: text }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = '✓ Copied';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      });
+    }
+  }
+
+  const TIER_VALUES = ['sponsored', 'featured', 'pinned', 'none'];
+  function findTier(item) {
+    const key = Object.keys(item).find(k => TIER_VALUES.includes((item[k] || '').trim().toLowerCase()));
+    return key ? { key: key, tier: item[key].trim().toLowerCase() } : { key: null, tier: 'none' };
+  }
+
+  function severityIndicator(item) {
+    const key = findField(item, /severity|urgency|priority/i);
+    if (!key) return '';
+    const v = item[key].toLowerCase();
+    if (v.includes('non') || v.includes('yellow') || v.includes('minor')) {
+      return '<span title="Non-serious" style="margin-right:4px;">🟡</span>';
+    }
+    if (v.includes('serious') || v.includes('red') || v.includes('urgent')) {
+      return '<span title="Serious" style="margin-right:4px;">🔴</span>';
+    }
+    return '';
+  }
+
+  const ICON_RULES = [
+    [/\b(babysit|baby|childcare|nanny|newborn)\b/i, '👶'],
+    [/\b(study|tutor|tutoring|homework|reading)\b/i, '📖'],
+    [/\b(traffic|road|detour|closure|congestion|roadwork)\b/i, '🚦'],
+    [/\b(dog|cat|pet|vet|kennel)\b/i, '🐾'],
+    [/\b(sport|soccer|footy|cricket|basketball|swim|netball)\b/i, '⚽'],
+    [/\b(police|crime|theft|break-in|burglary|suspicious)\b/i, '🚓'],
+    [/\b(salon|hair|haircut|beauty|nails|barber)\b/i, '💇'],
+    [/\b(tea|cafe|coffee)\b/i, '🍵'],
+    [/\b(food|restaurant|bakery|meal|kitchen|takeaway)\b/i, '🍽️'],
+    [/\b(car|vehicle|mechanic|parking|garage|tyres?)\b/i, '🚗']
+  ];
+
+  function getContentIcon(item) {
+    const text = Object.values(item).join(' ').toLowerCase();
+    for (const [regex, icon] of ICON_RULES) {
+      if (regex.test(text)) return icon;
+    }
+    return null;
+  }
+
+  function buildCardHtml(category, item, i) {
+    const cfg = CATEGORIES[category];
+    const timestampKey = findField(item, /timestamp/i);
+    const dateKey = findField(item, /date/i) || findField(item, /time/i);
+    const severityKey = findField(item, /severity|urgency|priority/i);
+    const tierInfo = findTier(item);
+    const keys = Object.keys(item).filter(k => item[k] && k !== timestampKey && !/approved/i.test(k) && k !== dateKey && k !== severityKey && k !== tierInfo.key);
+    const titleKey = keys[0];
+    const rest = keys.slice(1);
+
+    let postedLabel = '';
+    if (timestampKey) {
+      const d = parseDateLoose(item[timestampKey]) || new Date(item[timestampKey]);
+      if (!isNaN(d.getTime())) postedLabel = 'Posted ' + relativeTime(d);
+    }
+    const dateLabel = dateKey ? escapeHtml(item[dateKey]) : '';
+
+    const titleText = titleKey ? item[titleKey] : 'Entry';
+    const detailsText = rest.map(k => k + ': ' + item[k]).join(', ');
+    const severityHtml = severityIndicator(item);
+    const tierBadge = tierInfo.tier === 'sponsored' ? ' 💎' : tierInfo.tier === 'featured' ? ' ⭐' : tierInfo.tier === 'pinned' ? ' 📌' : '';
+    const contentIcon = getContentIcon(item);
+
+    const shareBtn = `<button class="share-btn" onclick='shareCard(${JSON.stringify(titleText)}, ${JSON.stringify(detailsText)}, this)'>↗ Share</button>`;
+    let engagementBtns = '';
+    if (category === 'HelpRequests' && cfg.claimForm && !cfg.claimForm.startsWith('PASTE_')) {
+      engagementBtns = `<a class="share-btn" href="${cfg.claimForm}" target="_blank" rel="noopener">🙋 I can help</a>`;
+    } else if (category === 'Events' && cfg.rsvpForm && !cfg.rsvpForm.startsWith('PASTE_')) {
+      engagementBtns = `<a class="share-btn" href="${cfg.rsvpForm}" target="_blank" rel="noopener">🙋 RSVP</a>`;
+    }
+
+    return `
+      <div class="card" style="--cat-color: ${cfg.color}; --i: ${i}">
+        <div class="card-top">
+          <span class="card-tag">${severityHtml}${cfg.tabLabel}${tierBadge}</span>
+          <span class="card-date">${postedLabel ? escapeHtml(postedLabel) : dateLabel}</span>
+        </div>
+        <h3>${contentIcon ? contentIcon + ' ' : ''}${escapeHtml(titleText)}</h3>
+        ${dateKey && postedLabel ? `<p><strong>${escapeHtml(dateKey)}:</strong> ${dateLabel}</p>` : ''}
+        ${rest.map(k => `<p><strong>${escapeHtml(k)}:</strong> ${escapeHtml(item[k])}</p>`).join('')}
+        <div class="card-bottom">
+          ${engagementBtns}
+          ${shareBtn}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderCards(category, data) {
+    const container = document.getElementById('content');
+    if (data.length === 0) {
+      renderEmpty(category);
+      return;
+    }
+    container.innerHTML = data.map((item, i) => buildCardHtml(category, item, i)).join('');
+  }
+
+  function renderEmpty(category) {
+    const container = document.getElementById('content');
+    const cfg = CATEGORIES[category];
+    container.innerHTML = `<div class="empty-text">${cfg.emoji} Nothing posted here yet — be the first!</div>`;
+  }
+
+  function renderError(message) {
+    document.getElementById('content').innerHTML = '<div class="error">Failed to load data.<br><small>' + message + '</small></div>';
+  }
+
+  // Applies sorting / auto-hide-past-events on top of the approved raw rows.
+  function buildDisplayData(category, rawData) {
+    let data = rawData.slice();
+
+    if (category === 'Events') {
+      const dateKeyName = data.length ? (findField(data[0], /date/i) || findField(data[0], /time/i)) : null;
+      if (dateKeyName) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        data = data.filter(item => {
+          const d = parseDateLoose(item[dateKeyName]);
+          return !d || d >= today; // keep unparsable dates rather than risk hiding real events
+        });
+        data.sort((a, b) => {
+          const da = parseDateLoose(a[dateKeyName]);
+          const db = parseDateLoose(b[dateKeyName]);
+          if (da && db) return da - db;
+          if (da) return -1;
+          if (db) return 1;
+          return 0;
+        });
+      }
+    }
+
+    if (category === 'Offers') {
+      const rank = { sponsored: 3, featured: 2, pinned: 1, none: 0 };
+      data.sort((a, b) => (rank[findTier(b).tier] || 0) - (rank[findTier(a).tier] || 0));
+    }
+
+    return data;
+  }
+
+  function applyFilters() {
+    const searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+    let data = displayCache[currentCategory] || [];
+
+    if (currentCategory === 'HelpRequests' && statusFilter !== 'All') {
+      const statusKey = data.length ? findField(data[0], /status/i) : null;
+      if (statusKey) data = data.filter(item => item[statusKey] === statusFilter);
+    }
+
+    if (searchTerm) {
+      data = data.filter(item =>
+        Object.values(item).some(v => v && v.toLowerCase().includes(searchTerm))
+      );
+    }
+
+    renderCards(currentCategory, data);
+  }
+
+  function isFeatured(item) {
+    if (findTier(item).tier === 'featured' || findTier(item).tier === 'sponsored') return true;
+    const key = hasColumn(item, /featured|sponsored/i);
+    if (!key) return false;
+    const v = (item[key] || '').trim().toLowerCase();
+    return ['yes', 'true', 'y', '1', 'featured', 'sponsored'].includes(v);
+  }
+
+  function renderFeatured() {
+    const holder = document.getElementById('featured-section');
+    const data = cache['Offers'] || [];
+    const featured = data.filter(isFeatured);
+    if (featured.length === 0) {
+      holder.style.display = 'none';
+      holder.innerHTML = '';
+      return;
+    }
+    holder.style.display = 'block';
+    holder.innerHTML = '<div class="featured-heading">✨ Featured local businesses</div><div class="featured-strip">' +
+      featured.map(item => {
+        const tierKey = findTier(item).key;
+        const keys = Object.keys(item).filter(k => item[k] && k !== tierKey && !/approved|timestamp/i.test(k));
+        const name = keys[0] ? item[keys[0]] : 'Business';
+        const blurb = keys[1] ? item[keys[1]] : '';
+        return `<div class="featured-chip"><strong>${escapeHtml(name)}</strong>${blurb ? '<span>' + escapeHtml(blurb) + '</span>' : ''}</div>`;
+      }).join('') + '</div>';
+  }
+
+  async function loadTab(category, forceRefresh) {
+    currentCategory = category;
+    statusFilter = category === 'HelpRequests' ? 'Open' : 'All';
+    setActiveTab(category);
+    setSectionChrome(category);
+    renderSkeleton();
+
+    try {
+      let raw;
+      if (!forceRefresh && cache[category]) {
+        raw = cache[category];
+      } else {
+        const csvText = await fetchSheet(CATEGORIES[category].sheet);
+        const parsed = parseCSV(csvText);
+        raw = parsed.filter(isApproved);
+        cache[category] = raw;
+        updateStats();
+        if (category === 'Offers') renderFeatured();
+      }
+
+      displayCache[category] = buildDisplayData(category, raw);
+      renderStatusFilters(category, displayCache[category]);
+      applyFilters();
+    } catch (err) {
+      renderError(err && err.message ? err.message : err);
+    }
+  }
+
+  function updateStats() {
+    const counts = Object.keys(CATEGORIES).map(c => cache[c] ? cache[c].length : null);
+    if (counts.every(c => c !== null)) {
+      const total = counts.reduce((a, b) => a + b, 0);
+      document.getElementById('stat-total').textContent = total;
+    }
+    if (cache['HelpRequests']) document.getElementById('stat-favours').textContent = cache['HelpRequests'].length;
+    if (cache['Offers']) document.getElementById('stat-directory').textContent = cache['Offers'].length;
+  }
+
+  async function refreshCurrent() {
+    const btn = document.getElementById('refresh-btn');
+    btn.classList.add('spinning');
+    await loadTab(currentCategory, true);
+    btn.classList.remove('spinning');
+  }
+
+  async function preloadRemaining() {
+    for (const category of Object.keys(CATEGORIES)) {
+      if (category === currentCategory || cache[category]) continue;
+      try {
+        const csvText = await fetchSheet(CATEGORIES[category].sheet);
+        cache[category] = parseCSV(csvText).filter(isApproved);
+        updateStats();
+        if (category === 'Offers') renderFeatured();
+      } catch (err) {
+        // Silent fail for background preloads — the tab will retry on click.
+      }
+    }
+  }
+
+  // ---- Add to Home Screen ----
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    document.getElementById('install-btn').style.display = 'inline-block';
+  });
+  document.getElementById('install-btn').addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    document.getElementById('install-btn').style.display = 'none';
+  });
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  loadTab('Alerts').then(preloadRemaining);
+</script>
+
+</body>
+</html>
