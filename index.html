@@ -569,11 +569,6 @@
     return 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(sheetName);
   }
 
-  function parseCSV(text) {// In your app HTML, DELETE the existing parseCSV(text) function
-// and paste this in its place.
-// Why: the old version split on every comma, so any post containing a
-// comma (very common in feed text) would shift its columns.
-
 function parseCSV(text) {
   const rows = [];
   let row = [], cur = '', inQ = false;
